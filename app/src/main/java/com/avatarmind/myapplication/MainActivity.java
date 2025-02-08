@@ -18,7 +18,12 @@ public class MainActivity extends Activity implements View.OnClickListener{
         setContentView(R.layout.activity_main);
 
         mSpeechManager = (SpeechManager) this.getSystemService("speech");
+
         mSpeechManager.forceStartSpeaking("Hello World");
+
+        mSpeechManager.forceStartSpeaking("H" +
+                "ello World");
+
 
         mBtnBack = (Button) findViewById(R.id.btn_left);
         mBtnBack.setOnClickListener(this);

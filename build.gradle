@@ -3,9 +3,14 @@
 buildscript {
     repositories {
         google()
+<<<<<<< HEAD
        // jcenter()
         mavenCentral()
         
+=======
+        //jcenter()
+        mavenCentral()
+>>>>>>> 3778db0 (Elisdan)
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.5.2'
@@ -18,9 +23,14 @@ buildscript {
 allprojects {
     repositories {
         google()
+<<<<<<< HEAD
        // jcenter()
         mavenCentral()
         
+=======
+        //jcenter()
+        mavenCentral()
+>>>>>>> 3778db0 (Elisdan)
     }
 }
 
