@@ -21,7 +21,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
         // Initialize SpeechManager
         mSpeechManager = (SpeechManager) this.getSystemService("speech");
-        mSpeechManager.forceStartSpeaking("Red Light!!! Green Light!!!");
+        mSpeechManager.forceStartSpeaking("Red light!!! Green Light!!!");
 
         // Initialize RobotMotion
         mRobotMotion = new RobotMotion();
