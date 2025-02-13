@@ -13,4 +13,13 @@
         android:textSize="50dip"
         android:text="Hello World!" />
 
+    <Button
+        android:id="@+id/btn_nod_head"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Nod Head"
+        android:layout_marginTop="20dp"/>
+
+
+
 </LinearLayout>

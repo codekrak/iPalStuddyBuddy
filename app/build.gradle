@@ -18,10 +18,7 @@ android {
     }
 }
 
-<<<<<<< HEAD
-=======
 
->>>>>>> 3778db0 (Elisdan)
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'

@@ -3,18 +3,12 @@
 buildscript {
     repositories {
         google()
-<<<<<<< HEAD
-       // jcenter()
+        // jcenter()
         mavenCentral()
-        
-=======
-        //jcenter()
-        mavenCentral()
->>>>>>> 3778db0 (Elisdan)
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.5.2'
-        
+
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -23,17 +17,14 @@ buildscript {
 allprojects {
     repositories {
         google()
-<<<<<<< HEAD
-       // jcenter()
+        // jcenter()
         mavenCentral()
-        
-=======
-        //jcenter()
-        mavenCentral()
->>>>>>> 3778db0 (Elisdan)
     }
 }
 
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
+
+
