@@ -1,7 +1,8 @@
 import com.robotemi.sdk.Robot;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Scanner;
+import java.util.Map;
 
 public class QuizManager {
 
@@ -17,31 +18,66 @@ public class QuizManager {
         }
     }
 
-    private static List<Question> quiz;
+    private static Map<String, List<Question>> quizData;
+    private static List<Question> currentQuiz;
     private static int currentQuestionIndex = 0;
-    private static Robot robot;  // Robot instance for interaction
+    private static int score = 0;
+    private static Robot robot;
 
     public static void main(String[] args) {
-        // Initialize the quiz questions
-        quiz = new ArrayList<>();
-        quiz.add(new Question(
-                "What is the capital of France?",
-                new String[]{"Berlin", "Madrid", "Paris", "Rome"},
-                2 // Paris is correct (index 2)
-        ));
-        quiz.add(new Question(
-                "Which planet is known as the Red Planet?",
-                new String[]{"Earth", "Mars", "Jupiter", "Venus"},
-                1 // Mars is correct (index 1)
-        ));
-        quiz.add(new Question(
-                "Who wrote 'To Kill a Mockingbird'?",
-                new String[]{"Harper Lee", "J.K. Rowling", "Mark Twain", "Ernest Hemingway"},
-                0 // Harper Lee is correct (index 0)
-        ));
+        // Initialize quiz data
+        quizData = new HashMap<>();
 
-        robot = Robot.getInstance(); // Get the iPal Robot instance
-        startQuiz();
+        quizData.put("Math", new ArrayList<>());
+        quizData.get("Math").add(new Question("What is 5 + 3?", new String[]{"6", "7", "8", "9"}, 2));
+        quizData.get("Math").add(new Question("What is 12 ÷ 4?", new String[]{"2", "3", "4", "5"}, 1));
+        quizData.get("Math").add(new Question("What is the square root of 16?", new String[]{"2", "4", "6", "8"}, 1));
+        quizData.get("Math").add(new Question("Solve: 9 x 9", new String[]{"72", "81", "90", "99"}, 1));
+        quizData.get("Math").add(new Question("What is 15% of 200?", new String[]{"20", "25", "30", "35"}, 2));
+
+        quizData.put("Reading", new ArrayList<>());
+        quizData.get("Reading").add(new Question("Who wrote '1984'?", new String[]{"George Orwell", "J.K. Rowling", "Mark Twain", "Jane Austen"}, 0));
+        quizData.get("Reading").add(new Question("What is the main idea of a story called?", new String[]{"Plot", "Theme", "Conflict", "Setting"}, 1));
+        quizData.get("Reading").add(new Question("A synonym for 'happy' is?", new String[]{"Sad", "Angry", "Joyful", "Bored"}, 2));
+        quizData.get("Reading").add(new Question("What do we call the time and place of a story?", new String[]{"Plot", "Theme", "Setting", "Conflict"}, 2));
+        quizData.get("Reading").add(new Question("Which is a non-fiction book?", new String[]{"Harry Potter", "The Great Gatsby", "A Science Textbook", "Lord of the Rings"}, 2));
+
+        quizData.put("Science", new ArrayList<>());
+        quizData.get("Science").add(new Question("What is the chemical symbol for water?", new String[]{"H2O", "O2", "CO2", "NaCl"}, 0));
+        quizData.get("Science").add(new Question("What planet is closest to the Sun?", new String[]{"Venus", "Earth", "Mars", "Mercury"}, 3));
+        quizData.get("Science").add(new Question("Which gas do plants absorb from the air?", new String[]{"Oxygen", "Nitrogen", "Carbon Dioxide", "Hydrogen"}, 2));
+        quizData.get("Science").add(new Question("How many bones are in the adult human body?", new String[]{"206", "208", "210", "215"}, 0));
+        quizData.get("Science").add(new Question("What type of energy is produced by the Sun?", new String[]{"Kinetic", "Solar", "Nuclear", "Chemical"}, 1));
+
+        quizData.put("Government", new ArrayList<>());
+        quizData.get("Government").add(new Question("What is the supreme law of the United States?", new String[]{"The Bill of Rights", "The Constitution", "The Declaration of Independence", "The Articles of Confederation"}, 1));
+        quizData.get("Government").add(new Question("Who is the Commander in Chief of the military?", new String[]{"The President", "The Vice President", "The Speaker of the House", "The Chief Justice"}, 0));
+        quizData.get("Government").add(new Question("How many U.S. Senators are there?", new String[]{"50", "100", "435", "200"}, 1));
+        quizData.get("Government").add(new Question("What are the three branches of government?", new String[]{"Legislative, Executive, Judicial", "Congress, President, Supreme Court", "Democrats, Republicans, Independents", "Federal, State, Local"}, 0));
+        quizData.get("Government").add(new Question("Who was the first President of the United States?", new String[]{"Abraham Lincoln", "George Washington", "Thomas Jefferson", "John Adams"}, 1));
+
+        robot = Robot.getInstance(); // Get iPal Robot instance
+
+        // Start by asking the user to select a subject
+        selectSubject();
+    }
+
+    private static void selectSubject() {
+        robot.speak("Please select a subject: Math, Reading, Science, or Government.");
+        robot.showNotification("Select a Subject", new ArrayList<>(quizData.keySet()), new Robot.OnSdkCallback() {
+            @Override
+            public void onResult(String selectedSubject) {
+                if (quizData.containsKey(selectedSubject)) {
+                    currentQuiz = quizData.get(selectedSubject);
+                    currentQuestionIndex = 0;
+                    score = 0; // Reset score for new quiz
+                    startQuiz();
+                } else {
+                    robot.speak("Invalid selection. Please try again.");
+                    selectSubject();
+                }
+            }
+        });
     }
 
     private static void startQuiz() {
@@ -49,49 +85,49 @@ public class QuizManager {
     }
 
     private static void displayQuestion() {
-        if (currentQuestionIndex < quiz.size()) {
-            Question q = quiz.get(currentQuestionIndex);
+        if (currentQuestionIndex < currentQuiz.size()) {
+            Question q = currentQuiz.get(currentQuestionIndex);
             StringBuilder questionText = new StringBuilder("Question: " + q.question + "\n");
 
-            for (int i = 0; i < q.options.length; i++) {
-                questionText.append((i + 1)).append(". ").append(q.options[i]).append("\n");
+            List<String> answerChoices = new ArrayList<>();
+            for (String option : q.options) {
+                answerChoices.add(option);
             }
 
-            // Display question on robot screen
+            // Speak question and display options as buttons
             robot.speak(questionText.toString());
-            robot.showToast(questionText.toString());
+            robot.showNotification(q.question, answerChoices, new Robot.OnSdkCallback() {
+                @Override
+                public void onResult(String selectedAnswer) {
+                    checkAnswer(selectedAnswer);
+                }
+            });
 
-            // Wait for user input
-            getUserAnswer();
         } else {
-            robot.speak("Quiz finished! Thank you for playing.");
-            robot.showToast("Quiz finished! Thank you for playing.");
+            displayFinalScore();
         }
     }
 
-    private static void getUserAnswer() {
-        Scanner scanner = new Scanner(System.in);
-        robot.speak("Please enter the number of your answer.");
-        robot.showToast("Please enter the number of your answer.");
-
-        int userAnswer = scanner.nextInt() - 1; // Convert to zero-based index
-
-        checkAnswer(userAnswer);
-    }
-
-    private static void checkAnswer(int userAnswer) {
-        Question q = quiz.get(currentQuestionIndex);
-
-        if (userAnswer == q.correctAnswerIndex) {
+    private static void checkAnswer(String selectedAnswer) {
+        Question q = currentQuiz.get(currentQuestionIndex);
+        if (selectedAnswer.equals(q.options[q.correctAnswerIndex])) {
             robot.speak("Correct! Good job.");
-            robot.showToast("Correct! ✅");
+            robot.showToast("✅ Correct!");
+            score++; // Increase score on correct answer
         } else {
             robot.speak("Incorrect. The correct answer was " + q.options[q.correctAnswerIndex]);
-            robot.showToast("Incorrect ❌. Correct answer: " + q.options[q.correctAnswerIndex]);
+            robot.showToast("❌ Incorrect. Correct answer: " + q.options[q.correctAnswerIndex]);
         }
 
-        // Move to the next question
+        // Move to next question
         currentQuestionIndex++;
         displayQuestion();
+    }
+
+    private static void displayFinalScore() {
+        robot.speak("Quiz finished! Your final score is " + score + " out of " + currentQuiz.size());
+        robot.showToast("🏆 Final Score: " + score + "/" + currentQuiz.size());
+
+        selectSubject(); // Restart the quiz selection
     }
 }
