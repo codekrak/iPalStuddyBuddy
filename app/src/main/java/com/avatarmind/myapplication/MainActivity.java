@@ -19,7 +19,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Initialize SpeechManager
+        // Initialize SpeechManager voice
         mSpeechManager = (SpeechManager) this.getSystemService("speech");
         mSpeechManager.forceStartSpeaking("Red light!!! Green Light!!!");
 
@@ -30,7 +30,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
         mBtnBack = (Button) findViewById(R.id.btn_left);
         mBtnBack.setOnClickListener(this);
 
-        // Initialize the button to nod the head
+        // Initialize the button to nod the head movement
         mBtnNodHead = (Button) findViewById(R.id.btn_nod_head);
         mBtnNodHead.setOnClickListener(this);
     }
