@@ -4,13 +4,26 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Manages a quiz application that interacts with a robot.
+ */
 public class QuizManager {
 
+    /**
+     * Represents a quiz question with options and the correct answer index.
+     */
     static class Question {
         String question;
         String[] options;
         int correctAnswerIndex;
 
+        /**
+         * Constructs a new Question.
+         *
+         * @param question          The question text.
+         * @param options           The answer options.
+         * @param correctAnswerIndex The index of the correct answer in the options array.
+         */
         public Question(String question, String[] options, int correctAnswerIndex) {
             this.question = question;
             this.options = options;
@@ -24,110 +37,169 @@ public class QuizManager {
     private static int score = 0;
     private static Robot robot;
 
+    /**
+     * Main method to initialize quiz data and start the quiz.
+     *
+     * @param args Command-line arguments (not used).
+     */
     public static void main(String[] args) {
-        // Initialize quiz data
         quizData = new HashMap<>();
-
-        quizData.put("Math", new ArrayList<>());
-        quizData.get("Math").add(new Question("What is 5 + 3?", new String[]{"6", "7", "8", "9"}, 2));
-        quizData.get("Math").add(new Question("What is 12 ÷ 4?", new String[]{"2", "3", "4", "5"}, 1));
-        quizData.get("Math").add(new Question("What is the square root of 16?", new String[]{"2", "4", "6", "8"}, 1));
-        quizData.get("Math").add(new Question("Solve: 9 x 9", new String[]{"72", "81", "90", "99"}, 1));
-        quizData.get("Math").add(new Question("What is 15% of 200?", new String[]{"20", "25", "30", "35"}, 2));
-
-        quizData.put("Reading", new ArrayList<>());
-        quizData.get("Reading").add(new Question("Who wrote '1984'?", new String[]{"George Orwell", "J.K. Rowling", "Mark Twain", "Jane Austen"}, 0));
-        quizData.get("Reading").add(new Question("What is the main idea of a story called?", new String[]{"Plot", "Theme", "Conflict", "Setting"}, 1));
-        quizData.get("Reading").add(new Question("A synonym for 'happy' is?", new String[]{"Sad", "Angry", "Joyful", "Bored"}, 2));
-        quizData.get("Reading").add(new Question("What do we call the time and place of a story?", new String[]{"Plot", "Theme", "Setting", "Conflict"}, 2));
-        quizData.get("Reading").add(new Question("Which is a non-fiction book?", new String[]{"Harry Potter", "The Great Gatsby", "A Science Textbook", "Lord of the Rings"}, 2));
-
-        quizData.put("Science", new ArrayList<>());
-        quizData.get("Science").add(new Question("What is the chemical symbol for water?", new String[]{"H2O", "O2", "CO2", "NaCl"}, 0));
-        quizData.get("Science").add(new Question("What planet is closest to the Sun?", new String[]{"Venus", "Earth", "Mars", "Mercury"}, 3));
-        quizData.get("Science").add(new Question("Which gas do plants absorb from the air?", new String[]{"Oxygen", "Nitrogen", "Carbon Dioxide", "Hydrogen"}, 2));
-        quizData.get("Science").add(new Question("How many bones are in the adult human body?", new String[]{"206", "208", "210", "215"}, 0));
-        quizData.get("Science").add(new Question("What type of energy is produced by the Sun?", new String[]{"Kinetic", "Solar", "Nuclear", "Chemical"}, 1));
-
-        quizData.put("Government", new ArrayList<>());
-        quizData.get("Government").add(new Question("What is the supreme law of the United States?", new String[]{"The Bill of Rights", "The Constitution", "The Declaration of Independence", "The Articles of Confederation"}, 1));
-        quizData.get("Government").add(new Question("Who is the Commander in Chief of the military?", new String[]{"The President", "The Vice President", "The Speaker of the House", "The Chief Justice"}, 0));
-        quizData.get("Government").add(new Question("How many U.S. Senators are there?", new String[]{"50", "100", "435", "200"}, 1));
-        quizData.get("Government").add(new Question("What are the three branches of government?", new String[]{"Legislative, Executive, Judicial", "Congress, President, Supreme Court", "Democrats, Republicans, Independents", "Federal, State, Local"}, 0));
-        quizData.get("Government").add(new Question("Who was the first President of the United States?", new String[]{"Abraham Lincoln", "George Washington", "Thomas Jefferson", "John Adams"}, 1));
-
-        robot = Robot.getInstance(); // Get iPal Robot instance
-
-        // Start by asking the user to select a subject
+        initializeQuizData();
+        robot = Robot.getInstance();
         selectSubject();
     }
 
+    /**
+     * Initializes the quiz data with predefined questions for various subjects.
+     */
+    private static void initializeQuizData() {
+        quizData.put("Math", new ArrayList<>());
+        quizData.get("Math").add(new Question("What is 5 + 3?", new String[]{"6", "7", "8", "9"}, 2));
+        quizData.get("Math").add(new Question("What is 12 ÷ 4?", new String[]{"2", "3", "4", "5"}, 1));
+
+        quizData.put("Reading", new ArrayList<>());
+        quizData.get("Reading").add(new Question("Who wrote '1984'?", new String[]{"George Orwell", "J.K. Rowling", "Mark Twain", "Jane Austen"}, 0));
+
+        quizData.put("Science", new ArrayList<>());
+        quizData.get("Science").add(new Question("What is the chemical symbol for water?", new String[]{"H2O", "O2", "CO2", "NaCl"}, 0));
+
+        quizData.put("Government", new ArrayList<>());
+        quizData.get("Government").add(new Question("What is the supreme law of the United States?", new String[]{"The Bill of Rights", "The Constitution", "The Declaration of Independence", "The Articles of Confederation"}, 1));
+    }
+
+    /**
+     * Prompts the user to select a quiz subject.
+     */
     private static void selectSubject() {
-        robot.speak("Please select a subject: Math, Reading, Science, or Government.");
+        selection();
         robot.showNotification("Select a Subject", new ArrayList<>(quizData.keySet()), new Robot.OnSdkCallback() {
             @Override
             public void onResult(String selectedSubject) {
                 if (quizData.containsKey(selectedSubject)) {
                     currentQuiz = quizData.get(selectedSubject);
                     currentQuestionIndex = 0;
-                    score = 0; // Reset score for new quiz
+                    score = 0;
                     startQuiz();
                 } else {
-                    robot.speak("Invalid selection. Please try again.");
+                    invalidSelection();
                     selectSubject();
                 }
             }
         });
     }
 
+    /**
+     * Starts the quiz by displaying the first question.
+     */
     private static void startQuiz() {
         displayQuestion();
     }
 
+    /**
+     * Displays the current quiz question and provides answer options.
+     */
     private static void displayQuestion() {
         if (currentQuestionIndex < currentQuiz.size()) {
             Question q = currentQuiz.get(currentQuestionIndex);
-            StringBuilder questionText = new StringBuilder("Question: " + q.question + "\n");
-
-            List<String> answerChoices = new ArrayList<>();
-            for (String option : q.options) {
-                answerChoices.add(option);
-            }
-
-            // Speak question and display options as buttons
-            robot.speak(questionText.toString());
-            robot.showNotification(q.question, answerChoices, new Robot.OnSdkCallback() {
-                @Override
-                public void onResult(String selectedAnswer) {
-                    checkAnswer(selectedAnswer);
-                }
-            });
-
+            robot.speak("Question: " + q.question);
+            enableSpeechRecognition();
         } else {
             displayFinalScore();
         }
     }
 
+    /**
+     * Checks the answer selected by the user and updates the score.
+     *
+     * @param selectedAnswer The answer chosen by the user.
+     */
     private static void checkAnswer(String selectedAnswer) {
         Question q = currentQuiz.get(currentQuestionIndex);
         if (selectedAnswer.equals(q.options[q.correctAnswerIndex])) {
-            robot.speak("Correct! Good job.");
+            correctAnswer();
             robot.showToast("✅ Correct!");
-            score++; // Increase score on correct answer
+            score++;
         } else {
-            robot.speak("Incorrect. The correct answer was " + q.options[q.correctAnswerIndex]);
+            incorrectAnswer();
             robot.showToast("❌ Incorrect. Correct answer: " + q.options[q.correctAnswerIndex]);
         }
-
-        // Move to next question
         currentQuestionIndex++;
         displayQuestion();
     }
 
+    /**
+     * Displays the final score after quiz completion.
+     */
     private static void displayFinalScore() {
-        robot.speak("Quiz finished! Your final score is " + score + " out of " + currentQuiz.size());
+        finalScore();
         robot.showToast("🏆 Final Score: " + score + "/" + currentQuiz.size());
+        selectSubject();
+    }
 
-        selectSubject(); // Restart the quiz selection
+    /**
+     * Enables speech recognition for answering questions.
+     */
+    private static void enableSpeechRecognition() {
+        if (robot != null) {
+            answerAfterBeep();
+            robot.startVoiceRecognition(new Robot.OnSdkCallback() {
+                @Override
+                public void onResult(String spokenAnswer) {
+                    processSpokenAnswer(spokenAnswer);
+                }
+            });
+        }
+    }
+
+    /**
+     * Processes the spoken answer given by the user.
+     *
+     * @param spokenAnswer The answer spoken by the user.
+     */
+    private static void processSpokenAnswer(String spokenAnswer) {
+        Question q = currentQuiz.get(currentQuestionIndex);
+        for (String option : q.options) {
+            if (spokenAnswer.equalsIgnoreCase(option)) {
+                checkAnswer(option);
+                return;
+            }
+        }
+        unableToProcess();
+        enableSpeechRecognition();
+    }
+
+    // Helper methods for robot interactions
+    private static void speak(String message) {
+        if (robot != null) {
+            robot.speak(message);
+        }
+    }
+
+    private static void correctAnswer() {
+        speak("Correct! Good job.");
+    }
+
+    private static void incorrectAnswer() {
+        speak("Incorrect. Try again.");
+    }
+
+    private static void finalScore() {
+        speak("Quiz finished! Your final score is " + score + " out of " + currentQuiz.size());
+    }
+
+    private static void selection() {
+        speak("Please select a subject: Math, Reading, Science, or Government.");
+    }
+
+    private static void invalidSelection() {
+        speak("Invalid selection. Please try again.");
+    }
+
+    private static void answerAfterBeep() {
+        speak("Please say your answer after the beep.");
+    }
+
+    private static void unableToProcess() {
+        speak("I didn't understand. Please try again.");
     }
 }
