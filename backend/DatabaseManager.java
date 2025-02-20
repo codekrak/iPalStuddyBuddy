@@ -56,15 +56,30 @@ public class QuizManager {
         quizData.put("Math", new ArrayList<>());
         quizData.get("Math").add(new Question("What is 5 + 3?", new String[]{"6", "7", "8", "9"}, 2));
         quizData.get("Math").add(new Question("What is 12 ÷ 4?", new String[]{"2", "3", "4", "5"}, 1));
+        quizData.get("Math").add(new Question("What is the square root of 16?", new String[]{"2", "4", "6", "8"}, 1));
+        quizData.get("Math").add(new Question("Solve: 15 - 7", new String[]{"6", "7", "8", "9"}, 2));
+        quizData.get("Math").add(new Question("What is 9 × 3?", new String[]{"24", "26", "27", "30"}, 2));
 
         quizData.put("Reading", new ArrayList<>());
         quizData.get("Reading").add(new Question("Who wrote '1984'?", new String[]{"George Orwell", "J.K. Rowling", "Mark Twain", "Jane Austen"}, 0));
+        quizData.get("Reading").add(new Question("What is the main idea of a story called?", new String[]{"Plot", "Theme", "Conflict", "Setting"}, 1));
+        quizData.get("Reading").add(new Question("What do we call words that sound alike but have different meanings?", new String[]{"Homophones", "Synonyms", "Antonyms", "Adjectives"}, 0));
+        quizData.get("Reading").add(new Question("What is a noun?", new String[]{"A person, place, or thing", "An action word", "A describing word", "A feeling"}, 0));
+        quizData.get("Reading").add(new Question("What is an autobiography?", new String[]{"A book about someone's life", "A book about science", "A fictional story", "A book about animals"}, 0));
 
         quizData.put("Science", new ArrayList<>());
         quizData.get("Science").add(new Question("What is the chemical symbol for water?", new String[]{"H2O", "O2", "CO2", "NaCl"}, 0));
+        quizData.get("Science").add(new Question("What planet is closest to the Sun?", new String[]{"Venus", "Earth", "Mars", "Mercury"}, 3));
+        quizData.get("Science").add(new Question("What gas do plants need to perform photosynthesis?", new String[]{"Oxygen", "Nitrogen", "Carbon Dioxide", "Hydrogen"}, 2));
+        quizData.get("Science").add(new Question("What is the powerhouse of the cell?", new String[]{"Nucleus", "Ribosome", "Mitochondria", "Cell membrane"}, 2));
+        quizData.get("Science").add(new Question("What force keeps us on the ground?", new String[]{"Magnetism", "Friction", "Gravity", "Inertia"}, 2));
 
         quizData.put("Government", new ArrayList<>());
         quizData.get("Government").add(new Question("What is the supreme law of the United States?", new String[]{"The Bill of Rights", "The Constitution", "The Declaration of Independence", "The Articles of Confederation"}, 1));
+        quizData.get("Government").add(new Question("Who is the Commander in Chief of the military?", new String[]{"The President", "The Vice President", "The Speaker of the House", "The Chief Justice"}, 0));
+        quizData.get("Government").add(new Question("How many U.S. Senators are there?", new String[]{"50", "100", "150", "200"}, 1));
+        quizData.get("Government").add(new Question("What are the first ten amendments to the Constitution called?", new String[]{"The Bill of Rights", "The Articles of Confederation", "The Federalist Papers", "The Amendments"}, 0));
+        quizData.get("Government").add(new Question("Who was the first President of the United States?", new String[]{"Abraham Lincoln", "Thomas Jefferson", "George Washington", "John Adams"}, 2));
     }
 
     /**
@@ -88,16 +103,10 @@ public class QuizManager {
         });
     }
 
-    /**
-     * Starts the quiz by displaying the first question.
-     */
     private static void startQuiz() {
         displayQuestion();
     }
 
-    /**
-     * Displays the current quiz question and provides answer options.
-     */
     private static void displayQuestion() {
         if (currentQuestionIndex < currentQuiz.size()) {
             Question q = currentQuiz.get(currentQuestionIndex);
@@ -108,11 +117,6 @@ public class QuizManager {
         }
     }
 
-    /**
-     * Checks the answer selected by the user and updates the score.
-     *
-     * @param selectedAnswer The answer chosen by the user.
-     */
     private static void checkAnswer(String selectedAnswer) {
         Question q = currentQuiz.get(currentQuestionIndex);
         if (selectedAnswer.equals(q.options[q.correctAnswerIndex])) {
@@ -127,18 +131,12 @@ public class QuizManager {
         displayQuestion();
     }
 
-    /**
-     * Displays the final score after quiz completion.
-     */
     private static void displayFinalScore() {
         finalScore();
         robot.showToast("🏆 Final Score: " + score + "/" + currentQuiz.size());
         selectSubject();
     }
 
-    /**
-     * Enables speech recognition for answering questions.
-     */
     private static void enableSpeechRecognition() {
         if (robot != null) {
             answerAfterBeep();
@@ -151,11 +149,6 @@ public class QuizManager {
         }
     }
 
-    /**
-     * Processes the spoken answer given by the user.
-     *
-     * @param spokenAnswer The answer spoken by the user.
-     */
     private static void processSpokenAnswer(String spokenAnswer) {
         Question q = currentQuiz.get(currentQuestionIndex);
         for (String option : q.options) {
@@ -168,7 +161,6 @@ public class QuizManager {
         enableSpeechRecognition();
     }
 
-    // Helper methods for robot interactions
     private static void speak(String message) {
         if (robot != null) {
             robot.speak(message);

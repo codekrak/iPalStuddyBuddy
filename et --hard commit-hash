@@ -1,0 +1,10 @@
+[33m3f6871f[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m Added test case 1
+[33m22dd137[m Added Javadoc comments and implemented speak() methods for future testing. Documented all classes and methods, standardized robot speech, and improved code structure.
+[33m275af74[m Verify the change
+[33m49a5707[m Modified Quiz Database, added responses and touch feature for selection, created frontend directory
+[33mabaa1e7[m Hardcoded Database Setup, with iRobot response
+[33mc39f9ad[m created backend
+[33m16d8d39[m Elisdan
+[33m427c67d[m Elisdan
+[33m7c854b3[m Initial commit
+[33md067511[m Initial commit
