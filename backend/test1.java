@@ -15,7 +15,7 @@ public class Main {
         // Simulate selecting a subject (e.g., "Math")
         String selectedSubject = "Math";
         System.out.println("Selected Subject: " + selectedSubject);
-
+=
         // Set the quiz based on the selected subject
         QuizManager.currentQuiz = QuizManager.quizData.get(selectedSubject);
         QuizManager.currentQuestionIndex = 0;

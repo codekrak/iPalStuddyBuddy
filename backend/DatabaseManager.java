@@ -3,6 +3,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import Speech.SpeechManagerIntegration;
 
 /**
  * Manages a quiz application that interacts with a robot.
@@ -140,12 +141,7 @@ public class QuizManager {
     private static void enableSpeechRecognition() {
         if (robot != null) {
             answerAfterBeep();
-            robot.startVoiceRecognition(new Robot.OnSdkCallback() {
-                @Override
-                public void onResult(String spokenAnswer) {
-                    processSpokenAnswer(spokenAnswer);
-                }
-            });
+            robot.startVoiceRecognition(spokenAnswer -> processSpokenAnswer(spokenAnswer));
         }
     }
 
@@ -162,7 +158,9 @@ public class QuizManager {
     }
 
     private static void speak(String message) {
-        if (robot != null) {
+        if (speechManager != null && speechManager.getTtsEnable()) {
+            speechManager.startSpeaking(message);
+        } else if (robot != null) {
             robot.speak(message);
         }
     }
