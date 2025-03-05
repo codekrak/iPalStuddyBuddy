@@ -104,7 +104,7 @@ public class QuizManager {
             robot.speak("Question: " + q.question);
             enableSpeechRecognition();
         } else {
-            displayFinalScore();
+            displayFinalScore();/
         }
     }
 
