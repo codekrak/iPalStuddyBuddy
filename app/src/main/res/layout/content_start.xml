@@ -1,0 +1,55 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFEB3B"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/titleTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:gravity="center"
+        android:text="My name is Studdy Buddy"
+        android:textColor="#333"
+        android:textSize="68sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/instructionsTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="50dp"
+        android:gravity="center"
+        android:text="Let's Learn and Play!"
+        android:textColor="#555"
+        android:textSize="52sp" />
+
+    <Button
+        android:id="@+id/startButton"
+        android:layout_width="289dp"
+        android:layout_height="134dp"
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="#2A9D8F"
+        android:padding="16dp"
+        android:text="Start Learning"
+        android:textColor="#333"
+        android:textSize="42sp" />
+
+    <Button
+        android:id="@+id/exitButton"
+        android:layout_width="300dp"
+        android:layout_height="100dp"
+        android:layout_gravity="center"
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="#E76F51"
+        android:gravity="center"
+        android:padding="16dp"
+        android:text="Exit Game"
+        android:textColor="#333"
+        android:textColorHighlight="#2196F3"
+        android:textColorLink="#2196F3"
+        android:textSize="42sp" />
+</LinearLayout>

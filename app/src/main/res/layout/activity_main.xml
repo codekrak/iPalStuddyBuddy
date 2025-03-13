@@ -1,0 +1,79 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFEB3B"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/questionNumberTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="16dp"
+        android:text="Question #"
+        android:textColor="#333"
+        android:textSize="50sp" />
+
+    <TextView
+        android:id="@+id/questionTextView"
+        android:layout_width="match_parent"
+        android:layout_height="170dp"
+        android:gravity="center"
+        android:padding="16dp"
+        android:text="Question will appear here"
+        android:textColor="#333"
+        android:textSize="54sp" />
+
+    <TextView
+        android:id="@+id/timerTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:padding="8dp"
+        android:text="Time left: 10 seconds"
+        android:textSize="54sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/trueButton"
+            android:layout_width="350dp"
+            android:layout_height="150dp"
+            android:layout_margin="8dp"
+            android:layout_marginTop="100dp"
+            android:layout_marginRight="20dp"
+            android:backgroundTint="#2A9D8F"
+            android:text="True"
+            android:textColor="#222"
+            android:textSize="80sp" />
+
+        <Button
+            android:id="@+id/falseButton"
+            android:layout_width="350dp"
+            android:layout_height="150dp"
+            android:layout_margin="8dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="100dp"
+            android:backgroundTint="#E76F51"
+            android:text="False"
+            android:textColor="#222"
+            android:textSize="80sp" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/exitButtonMain"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="100dp"
+        android:text="Exit"
+        android:textSize="40sp" />
+
+</LinearLayout>
