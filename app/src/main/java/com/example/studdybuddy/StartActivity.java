@@ -1,42 +1,40 @@
-package com.example.trivia;
-
+package com.example.studdybuddy;
+import android.support.v7.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-import android.support.v7.app.AppCompatActivity; // Update to correct package
-
 public class StartActivity extends AppCompatActivity {
+
+
+    private Button startButton;  // Matches your XML ID
+    private Button exitButton;   // Added to match the XML layout
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start);
 
-        // Get the start button
-        Button startButton = (Button) findViewById(R.id.startButton);
+        // Link buttons to their corresponding XML IDs
+        startButton = (Button) findViewById(R.id.startButton);
+        exitButton = (Button) findViewById(R.id.exitButton);
 
-        Button exitButton = (Button) findViewById(R.id.exitButton);
-
-        // Set up the button click listener
+        // Start button click listener
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Start the MainActivity when the button is clicked
-                Intent intent = new Intent(StartActivity.this, MainActivity.class);
+                Intent intent = new Intent(StartActivity.this, StuddyBuddyQuestions.class);
                 startActivity(intent);
-
-                // Optional: Close the StartActivity so the user cannot return to it
-                finish();
             }
         });
 
+        // Exit button click listener
         exitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish(); // Exit the app when the button is clicked
+                finish(); // Close the app when the exit button is clicked
             }
         });
     }
 }
-

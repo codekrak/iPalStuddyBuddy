@@ -1,4 +1,4 @@
-package com.example.trivia;
+package com.example.studdybuddy;
 
 import android.content.Intent;
 import android.os.Bundle;

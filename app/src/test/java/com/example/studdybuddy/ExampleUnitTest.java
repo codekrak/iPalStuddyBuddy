@@ -1,4 +1,4 @@
-package com.example.trivia;
+package com.example.studdybuddy;
 
 import org.junit.Test;
 

@@ -1,16 +1,16 @@
-package com.example.trivia;
+package com.example.studdybuddy;
 import android.content.Context;
 
 public class QuestionManager {
-    private TriviaQuestions questions;
+    private StuddyBuddyQuestions questions;
     private int questionIndex = 0;
     private int correctAnswers = 0;
 
-    public QuestionManager(TriviaQuestions questions, Context context) {
+    public QuestionManager(StuddyBuddyQuestions questions, Context context) {
         this.questions = questions;
     }
 
-    public TriviaQuestion getNextQuestion() {
+    public StuddyBuddyQuestion getNextQuestion() {
         if (questionIndex < questions.getSize()) {
             return questions.getQuestion(questionIndex);
         } else {
@@ -19,7 +19,7 @@ public class QuestionManager {
     }
 
     public boolean validateAnswer (String userAnswer) {
-        TriviaQuestion currentQuestion = questions.getQuestion(questionIndex);
+        StuddyBuddyQuestion currentQuestion = questions.getQuestion(questionIndex);
         questionIndex++;
 
         if (userAnswer.equalsIgnoreCase(currentQuestion.getCorrectAnswer())) {
