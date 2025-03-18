@@ -5,7 +5,6 @@ import android.os.CountDownTimer;
 public class TimerManager {
     private TextView timerTextView;
     private CountDownTimer countDownTimer;
-    private QuestionManager qManager;
 
     public TimerManager(TextView timerTextView) {
         this.timerTextView = timerTextView;

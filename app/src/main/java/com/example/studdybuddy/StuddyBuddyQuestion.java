@@ -21,9 +21,6 @@ public class StuddyBuddyQuestion {
         return choices;
     }
 
-    public int getCorrectAnswerIndex() {
-        return correctAnswerIndex;
-    }
 
     public String getCorrectMessage() {
         return correctMessage;
