@@ -1,37 +1,41 @@
-package com.example.studdybuddy;
+package com.example.studdybuddy; // Defines the package where this class belongs
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.widget.Button;
+// Import necessary Android libraries
+import android.content.Intent; // Used for navigating between activities
+import android.os.Bundle; // Contains saved instance state for activity recreation
+import android.support.v7.app.AppCompatActivity; // Base class for modern Android activities
+import android.view.View; // Used for handling user interface interactions
+import android.widget.Button; // Represents button UI elements
 
-public class MainActivity extends AppCompatActivity { // Add AppCompatActivity here
+public class MainActivity extends AppCompatActivity { // Defines MainActivity, extending AppCompatActivity
 
-    private Button startButton;
-    private Button exitButton;
+    private Button startButton; // Declares a button for starting the quiz
+    private Button exitButton; // Declares a button for exiting the app
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+    protected void onCreate(Bundle savedInstanceState) { // Called when the activity is created
+        super.onCreate(savedInstanceState); // Calls the superclass method to maintain activity lifecycle
+        setContentView(R.layout.activity_main); // Sets the UI layout from activity_main.xml
 
+        // Initialize buttons by linking them to the corresponding XML IDs
         startButton = (Button) findViewById(R.id.startButton);
         exitButton = (Button) findViewById(R.id.exitButton);
 
-
+        // Set click listener for the Start button
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Creates an intent to navigate from MainActivity to StartActivity
                 Intent intent = new Intent(MainActivity.this, StartActivity.class);
-                startActivity(intent);
+                startActivity(intent); // Starts StartActivity
             }
         });
 
+        // Set click listener for the Exit button
         exitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finishAffinity();
+                finishAffinity(); // Closes all activities and exits the app
             }
         });
     }
