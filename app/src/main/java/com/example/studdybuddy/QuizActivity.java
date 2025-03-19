@@ -1,21 +1,24 @@
-package com.example.studdybuddy; // Defines the package where this class belongs
+package com.example.studdybuddy; // Defines the package for this class
 
-import android.app.Activity; // Imports Activity class to create an Android screen
-import android.content.Intent; // Imports Intent for screen navigation
-import android.os.Bundle; // Imports Bundle for activity state management
-import android.view.View; // Imports View for UI interaction
-import android.widget.Button; // Imports Button class to handle button UI elements
-import android.widget.TextView; // Imports TextView class for displaying text
+import android.app.Activity; // Base class for Android activity
+import android.content.Intent; // Handles navigation between screens
+import android.os.Bundle; // Manages activity state
+import android.robot.speech.SpeechManager; // ✅ Enables text-to-speech (TTS) for iPal
+import android.robot.speech.SpeechService; // ✅ Provides speech-related services
+import android.view.View; // Handles UI interactions
+import android.widget.Button; // Represents button elements
+import android.widget.TextView; // Represents text display elements
 
-// Class for managing the quiz screen
+// ✅ Class for managing the quiz screen
 public class QuizActivity extends Activity {
     private TextView questionTextView, scoreTextView, timerTextView; // Text fields for questions, scores, and timer
-    private Button[] answerButtons = new Button[4]; // Array to store four answer buttons
+    private Button[] answerButtons = new Button[4]; // Array for storing answer buttons
     private Button backToMenuButton; // ✅ Button to return to the main menu
-    private QuestionManager questionManager; // Manages questions and scoring
+    private QuestionManager questionManager; // Handles question logic
     private StuddyBuddyQuestion currentQuestion; // Stores the current question
-    private TimerManager timerManager; // Manages countdown timer
+    private TimerManager timerManager; // Handles countdown timer
     private String selectedSubject; // ✅ Stores the selected subject chosen by the user
+    private SpeechManager mSpeechManager; // ✅ SpeechManager for robot text-to-speech
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +36,9 @@ public class QuizActivity extends Activity {
 
         // ✅ Initialize QuestionManager with selected subject
         questionManager = new QuestionManager(new StuddyBuddyQuestions(selectedSubject), this);
+
+        // ✅ Initialize SpeechManager for iPal robot speech
+        mSpeechManager = (SpeechManager) getSystemService(SpeechService.SERVICE_NAME);
 
         // ✅ Link UI elements to their XML components
         questionTextView = (TextView) findViewById(R.id.questionTextView);
@@ -84,6 +90,9 @@ public class QuizActivity extends Activity {
         // ✅ Display question text
         questionTextView.setText(currentQuestion.getQuestion());
         String[] choices = currentQuestion.getChoices(); // Retrieve answer choices
+
+        // ✅ Make the iPal robot **speak the question out loud**
+        mSpeechManager.startSpeaking(currentQuestion.getQuestion());
 
         // ✅ Assign answer choices to buttons and set up click listeners
         for (int i = 0; i < answerButtons.length; i++) {
