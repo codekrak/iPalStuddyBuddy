@@ -43,10 +43,6 @@ public class QuestionManager {
         return "Better luck next time. Keep practicing!";
     }
 
-    // ✅ Get current question number
-    public int getCurrentQuestionNumber() {
-        return questionIndex;
-    }
 
     // ✅ Get final score
     public String finalScoreText() {

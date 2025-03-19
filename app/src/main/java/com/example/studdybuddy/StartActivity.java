@@ -19,20 +19,21 @@ public class StartActivity extends AppCompatActivity {
         startButton = (Button) findViewById(R.id.startButton);
         exitButton = (Button) findViewById(R.id.exitButton);
 
-        // Start button click listener
+        // Start button click listener -> Navigates to SubjectSelectionActivity
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(StartActivity.this, QuizActivity.class);
+                Intent intent = new Intent(StartActivity.this, SubjectSelectionActivity.class);
                 startActivity(intent);
             }
         });
 
-        // Exit button click listener
+        // Exit button click listener -> Properly closes the app
         exitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish(); // Closes the app when exit button is clicked
+                finishAffinity(); // ✅ Ensures all activities are closed and exits app
+                System.exit(0); // ✅ Forcefully terminates the app
             }
         });
     }

@@ -1,0 +1,58 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="16dp"
+    android:background="#FFEB3B">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Select a Subject"
+        android:textSize="36sp"
+        android:textStyle="bold"
+        android:textColor="#333"
+        android:layout_marginBottom="32dp"/>
+
+    <Button
+        android:id="@+id/mathButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Math"
+        android:textSize="24sp"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#2A9D8F"
+        android:layout_marginBottom="16dp"/>
+
+    <Button
+        android:id="@+id/readingButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Reading"
+        android:textSize="24sp"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#F4A261"
+        android:layout_marginBottom="16dp"/>
+
+    <Button
+        android:id="@+id/scienceButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Science"
+        android:textSize="24sp"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#E76F51"
+        android:layout_marginBottom="16dp"/>
+
+    <Button
+        android:id="@+id/governmentButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Government"
+        android:textSize="24sp"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#264653"
+        android:layout_marginBottom="16dp"/>
+
+</LinearLayout>
