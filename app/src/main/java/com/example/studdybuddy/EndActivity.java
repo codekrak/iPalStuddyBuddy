@@ -1,4 +1,4 @@
-package com.example.studdybuddy; // Defines the package for this class
+package com.example.studdybuddy;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,22 +14,33 @@ public class EndActivity extends AppCompatActivity {
 
     private SpeechManager mSpeechManager;
     private RobotMotion mRobotMotion = new RobotMotion();
+    private String feedback;
 
-    // Speech Listener for TTS events
+    // Trigger robot motion only after speech ends
     private SpeechManager.TtsListener mTtsListener = new SpeechManager.TtsListener() {
         @Override
         public void onBegin(int requestId) {
-            System.out.println("Speech Started: Request ID " + requestId);
+            System.out.println("Speech started.");
         }
 
         @Override
         public void onEnd(int requestId) {
-            System.out.println("Speech Finished: Request ID " + requestId);
+            System.out.println("Speech finished. Triggering motion...");
+
+            if (feedback.contains("Excellent")) {
+                mRobotMotion.doAction(RobotMotion.Action.CHEER);
+            } else if (feedback.contains("Great")) {
+                mRobotMotion.doAction(RobotMotion.Action.CLAP);
+            } else if (feedback.contains("Good")) {
+                mRobotMotion.doAction(RobotMotion.Action.HIGHFIVE);
+            } else {
+                mRobotMotion.doAction(RobotMotion.Action.NO);
+            }
         }
 
         @Override
         public void onError(int error) {
-            System.out.println("Speech Error Occurred: " + error);
+            System.out.println("Speech error: " + error);
         }
     };
 
@@ -40,57 +51,29 @@ public class EndActivity extends AppCompatActivity {
 
         // Initialize SpeechManager
         mSpeechManager = (SpeechManager) getSystemService(SpeechService.SERVICE_NAME);
-        if (mSpeechManager == null) {
-            System.out.println("ERROR: SpeechManager is NULL. Speech will NOT work.");
+        if (mSpeechManager != null) {
+            mSpeechManager.setTtsListener(mTtsListener);
         } else {
-            System.out.println("SUCCESS: SpeechManager initialized.");
-            mSpeechManager.setTtsListener(mTtsListener); // Set the listener
+            System.out.println("ERROR: SpeechManager is null.");
         }
 
-        // Get data from previous activity
+        // Get score and feedback
         Intent intent = getIntent();
         String scoreText = intent.getStringExtra("SCORE_TEXT");
-        String feedback = intent.getStringExtra("FEEDBACK");
+        feedback = intent.getStringExtra("FEEDBACK");
 
-        // Set UI text
+        // Set text views
         TextView scoreTextView = (TextView) findViewById(R.id.scoreTextView);
         scoreTextView.setText(scoreText);
 
         TextView feedbackTextView = (TextView) findViewById(R.id.feedbackTextView);
         feedbackTextView.setText(feedback);
 
-        // 🔹 DEBUG LOG - Speech Testing 🔹
-        System.out.println("DEBUG: Attempting speech test...");
-        mSpeechManager.startSpeaking("Speech test. If you hear this, the speech system is working.");
-
-        try {
-            Thread.sleep(2000); // Allow 2 seconds for speech test
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        // Format the full message for speech
+        // Speak final message
         String fullMessage = "Your final score is " + scoreText + ". " + feedback;
-        System.out.println("DEBUG: Speaking final message: " + fullMessage);
-
-        // Speak out the final score and feedback
-        mSpeechManager.startSpeaking(fullMessage);
-
-        try {
-            Thread.sleep(4000); // Allow 4 seconds for speech to complete before robot moves
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        // Robot motion based on feedback
-        if (feedback.contains("Excellent")) {
-            mRobotMotion.doAction(RobotMotion.Action.CHEER);
-        } else if (feedback.contains("Great")) {
-            mRobotMotion.doAction(RobotMotion.Action.CLAP);
-        } else if (feedback.contains("Good")) {
-            mRobotMotion.doAction(RobotMotion.Action.HIGHFIVE);
-        } else {
-            mRobotMotion.doAction(RobotMotion.Action.NO);
+        System.out.println("Speaking: " + fullMessage);
+        if (mSpeechManager != null) {
+            mSpeechManager.startSpeaking(fullMessage);
         }
 
         // Restart button

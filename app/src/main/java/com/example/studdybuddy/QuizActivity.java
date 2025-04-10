@@ -1,46 +1,42 @@
-package com.example.studdybuddy; // Defines the package for this class
+package com.example.studdybuddy;
 
-import android.app.Activity; // Base class for Android activity
-import android.content.Intent; // Handles navigation between screens
-import android.os.Bundle; // Manages activity state
-import android.robot.speech.SpeechManager; // ✅ Enables text-to-speech (TTS) for iPal
-import android.robot.speech.SpeechService; // ✅ Provides speech-related services
-import android.view.View; // Handles UI interactions
-import android.widget.Button; // Represents button elements
-import android.widget.TextView; // Represents text display elements
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.robot.speech.SpeechManager;
+import android.robot.speech.SpeechService;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 
-// ✅ Class for managing the quiz screen
-public class QuizActivity extends Activity {
-    private TextView questionTextView, scoreTextView, timerTextView; // Text fields for questions, scores, and timer
-    private Button[] answerButtons = new Button[4]; // Array for storing answer buttons
-    private Button backToMenuButton; // ✅ Button to return to the main menu
-    private QuestionManager questionManager; // Handles question logic
-    private StuddyBuddyQuestion currentQuestion; // Stores the current question
-    private TimerManager timerManager; // Handles countdown timer
-    private String selectedSubject; // ✅ Stores the selected subject chosen by the user
-    private SpeechManager mSpeechManager; // ✅ SpeechManager for robot text-to-speech
+public class QuizActivity extends Activity implements SpeechListener {
+
+    private TextView questionTextView, scoreTextView, timerTextView;
+    private Button[] answerButtons = new Button[4];
+    private Button backToMenuButton;
+    private QuestionManager questionManager;
+    private StuddyBuddyQuestion currentQuestion;
+    private TimerManager timerManager;
+    private String selectedSubject;
+    private SpeechManager mSpeechManager;
+    private SpeechRecognizerManager speechRecognizerManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_quiz); // Sets the layout file for this activity
+        setContentView(R.layout.activity_quiz);
 
-        // ✅ Retrieve the selected subject from intent data
+        // Get selected subject or default to math
         Intent intent = getIntent();
         selectedSubject = intent.getStringExtra("subject");
+        if (selectedSubject == null) selectedSubject = "math";
 
-        // ✅ If no subject is received, default to "math"
-        if (selectedSubject == null) {
-            selectedSubject = "math";
-        }
-
-        // ✅ Initialize QuestionManager with selected subject
+        // Initialize logic and speech systems
         questionManager = new QuestionManager(new StuddyBuddyQuestions(selectedSubject), this);
-
-        // ✅ Initialize SpeechManager for iPal robot speech
         mSpeechManager = (SpeechManager) getSystemService(SpeechService.SERVICE_NAME);
+        speechRecognizerManager = new SpeechRecognizerManager(this, this);
 
-        // ✅ Link UI elements to their XML components
+        // Link UI
         questionTextView = (TextView) findViewById(R.id.questionTextView);
         scoreTextView = (TextView) findViewById(R.id.scoreTextView);
         timerTextView = (TextView) findViewById(R.id.timerTextView);
@@ -48,89 +44,100 @@ public class QuizActivity extends Activity {
         answerButtons[1] = (Button) findViewById(R.id.answerButton2);
         answerButtons[2] = (Button) findViewById(R.id.answerButton3);
         answerButtons[3] = (Button) findViewById(R.id.answerButton4);
-        backToMenuButton = (Button) findViewById(R.id.backToMenuButton); // ✅ Back to menu button
-
-        // Hide the "Back to Menu" button at the start
+        backToMenuButton = (Button) findViewById(R.id.backToMenuButton);
         backToMenuButton.setVisibility(View.GONE);
 
-        // ✅ Initialize TimerManager for countdown functionality
+        // Timer setup
         timerManager = new TimerManager(timerTextView);
 
-        // ✅ Set up click listener for the "Back to Menu" button
+        // Back to menu listener
         backToMenuButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(QuizActivity.this, StartActivity.class); // Navigate to StartActivity
-                startActivity(intent); // Start main menu activity
-                finish(); // ✅ Close current activity to prevent returning to quiz when pressing "Back"
+                Intent menuIntent = new Intent(QuizActivity.this, StartActivity.class);
+                startActivity(menuIntent);
+                finish();
             }
         });
 
-        // ✅ Load the first question when the quiz starts
         loadNextQuestion();
     }
 
-    // ✅ Method to load the next question from QuestionManager
     private void loadNextQuestion() {
-        currentQuestion = questionManager.getNextQuestion(); // Retrieves the next question
+        currentQuestion = questionManager.getNextQuestion();
 
-        // ✅ If there are no more questions, show final feedback
         if (currentQuestion == null) {
-            questionTextView.setText(questionManager.getFinalFeedback()); // Display final feedback
-
-            // ✅ Hide answer buttons since the quiz is over
-            for (Button button : answerButtons) {
-                button.setVisibility(View.GONE);
+            questionTextView.setText(questionManager.getFinalFeedback());
+            for (Button b : answerButtons) {
+                b.setVisibility(View.GONE);
             }
-            backToMenuButton.setVisibility(View.VISIBLE); // ✅ Show the "Back to Menu" button
-
-            return; // Stop further execution
+            backToMenuButton.setVisibility(View.VISIBLE);
+            return;
         }
 
-        // ✅ Display question text
+        // Speak question and listen for voice input
         questionTextView.setText(currentQuestion.getQuestion());
-        String[] choices = currentQuestion.getChoices(); // Retrieve answer choices
+        if (mSpeechManager != null) {
+            mSpeechManager.startSpeaking(currentQuestion.getQuestion());
+        }
+        speechRecognizerManager.startListening();
 
-        // ✅ Make the iPal robot **speak the question out loud**
-        mSpeechManager.startSpeaking(currentQuestion.getQuestion());
-
-        // ✅ Assign answer choices to buttons and set up click listeners
+        final String[] choices = currentQuestion.getChoices();
         for (int i = 0; i < answerButtons.length; i++) {
-            answerButtons[i].setText(choices[i]); // Set button text to choice
-            final int finalI = i; // ✅ Java 7 Fix: Make variable final for inner class
+            answerButtons[i].setText(choices[i]);
+            final int index = i;
             answerButtons[i].setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    handleAnswer(finalI); // Handle answer selection
+                    handleAnswer(index);
                 }
             });
         }
 
-        // ✅ Start the countdown timer for answering the question
+        // Timer expiration logic
         timerManager.startTimer(new Runnable() {
             @Override
             public void run() {
-                // ✅ Time is up, display the correct answer
                 questionTextView.setText("Time's up! The correct answer was: " + currentQuestion.getCorrectAnswer());
-                loadNextQuestion(); // Load the next question
+                speechRecognizerManager.stopListening();
+                loadNextQuestion();
             }
         });
     }
 
-    // ✅ Handles the user's answer selection
     private void handleAnswer(int chosenIndex) {
-        timerManager.stopTimer(); // ✅ Stop the timer when the user selects an answer
+        timerManager.stopTimer();
+        speechRecognizerManager.stopListening();
 
-        boolean isCorrect = questionManager.validateAnswer(currentQuestion.getChoices()[chosenIndex]); // ✅ Validate answer
-        scoreTextView.setText(questionManager.finalScoreText()); // ✅ Update score display
+        boolean isCorrect = questionManager.validateAnswer(currentQuestion.getChoices()[chosenIndex]);
+        scoreTextView.setText(questionManager.finalScoreText());
 
         if (isCorrect) {
-            questionTextView.setText("Correct! " + questionManager.getFeedback()); // ✅ Display correct feedback
+            questionTextView.setText("Correct! " + questionManager.getFeedback());
         } else {
-            questionTextView.setText("Incorrect! " + questionManager.getFeedback()); // ✅ Display incorrect feedback
+            questionTextView.setText("Incorrect! " + questionManager.getFeedback());
         }
 
-        // ✅ Load the next question after answering
         loadNextQuestion();
+    }
+
+    @Override
+    public void onSpeechResult(String result) {
+        if (currentQuestion == null) return;
+
+        String[] choices = currentQuestion.getChoices();
+        for (int i = 0; i < choices.length; i++) {
+            if (result.equalsIgnoreCase(choices[i])) {
+                handleAnswer(i);
+                return;
+            }
+        }
+
+        questionTextView.setText("Didn't catch that. Please tap the answer.");
+    }
+
+    @Override
+    public void onSpeechError(String error) {
+        questionTextView.setText("Speech error: " + error + ". Tap an answer to continue.");
     }
 }
