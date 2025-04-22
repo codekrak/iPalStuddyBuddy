@@ -13,6 +13,15 @@ public class QuestionManager {
         this.questions = questions;
     }
 
+    // Add these getter methods
+    public int getCorrectAnswersCount() {
+        return correctAnswers;
+    }
+
+    public int getCurrentQuestionIndex() {
+        return questionIndex;
+    }
+
     // ✅ Retrieves the next question and increments the questionIndex
     public StuddyBuddyQuestion getNextQuestion() {
         if (questionIndex < questions.getSize()) { // Ensures there are remaining questions

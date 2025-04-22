@@ -21,6 +21,12 @@ public class QuizActivity extends Activity implements SpeechListener {
     private SpeechManager mSpeechManager;
     private SpeechRecognizerManager speechRecognizerManager;
 
+    public String getCurrentSubject() {
+        return this.selectedSubject;
+    }
+    public String getSelectedSubject() {
+        return this.selectedSubject;
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

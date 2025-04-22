@@ -82,5 +82,34 @@ public class SpeechRecognizerManager {
             speechRecognizer = null;
         }
     }
-}
 
+    /* package-private */ RecognitionListener getRecognitionListenerForTesting() {
+        return new RecognitionListener() {
+            @Override public void onReadyForSpeech(Bundle params) {}
+            @Override public void onBeginningOfSpeech() {}
+            @Override public void onRmsChanged(float rmsdB) {}
+            @Override public void onBufferReceived(byte[] buffer) {}
+            @Override public void onEndOfSpeech() {}
+
+            @Override
+            public void onError(int error) {
+                if (listener != null) {
+                    listener.onSpeechError("Speech recognition error: " + error);
+                }
+            }
+
+            @Override
+            public void onResults(Bundle results) {
+                ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+                if (matches != null && !matches.isEmpty()) {
+                    listener.onSpeechResult(matches.get(0));
+                } else {
+                    listener.onSpeechError("No recognizable speech detected.");
+                }
+            }
+
+            @Override public void onPartialResults(Bundle partialResults) {}
+            @Override public void onEvent(int eventType, Bundle params) {}
+        };
+    }
+}
