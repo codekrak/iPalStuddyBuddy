@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:gravity="center"
-        android:text="My name is Studdy Buddy"
+        android:text="My name is Study Buddy"
         android:textColor="#333"
         android:textSize="68sp"
         android:textStyle="bold" />
