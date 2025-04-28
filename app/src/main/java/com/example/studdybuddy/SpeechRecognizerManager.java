@@ -69,7 +69,9 @@ public class SpeechRecognizerManager {
             speechRecognizer.startListening(recognizerIntent);
         }
     }
-
+    public SpeechRecognizer getSpeechRecognizer() {
+        return speechRecognizer;
+    }
     public void stopListening() {
         if (speechRecognizer != null) {
             speechRecognizer.stopListening();
@@ -97,7 +99,9 @@ public class SpeechRecognizerManager {
                     listener.onSpeechError("Speech recognition error: " + error);
                 }
             }
-
+            public SpeechRecognizer getSpeechRecognizer() {
+                return speechRecognizer;
+            }
             @Override
             public void onResults(Bundle results) {
                 ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);

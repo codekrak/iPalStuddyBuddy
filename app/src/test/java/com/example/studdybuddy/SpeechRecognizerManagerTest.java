@@ -10,92 +10,104 @@ import android.speech.SpeechRecognizer;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RuntimeEnvironment;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Locale;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(RobolectricTestRunner.class)
 public class SpeechRecognizerManagerTest {
 
-    @Mock private Context mockContext;
     @Mock private SpeechListener mockListener;
-    @Mock private SpeechRecognizer mockSpeechRecognizer;
-    @Captor private ArgumentCaptor<Intent> intentCaptor;
-    @Captor private ArgumentCaptor<RecognitionListener> listenerCaptor;
+    @Mock private SpeechRecognizer mockRecognizer;
 
     private SpeechRecognizerManager manager;
+    private Intent recognizerIntent;
+    private RecognitionListener recognitionListener;
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
 
-        when(SpeechRecognizer.createSpeechRecognizer(mockContext)).thenReturn(mockSpeechRecognizer);
-        manager = new SpeechRecognizerManager(mockContext, mockListener);
+        // 1) Create real manager
+        Context ctx = RuntimeEnvironment.application;
+        manager = new SpeechRecognizerManager(ctx, mockListener);
 
-        // Capture the listener during setup
-        verify(mockSpeechRecognizer).setRecognitionListener(listenerCaptor.capture());
+        // 2) Inject mock SpeechRecognizer
+        Field srField = SpeechRecognizerManager.class.getDeclaredField("speechRecognizer");
+        srField.setAccessible(true);
+        srField.set(manager, mockRecognizer);
+
+        // 3) Get recognizer intent
+        Field intentField = SpeechRecognizerManager.class.getDeclaredField("recognizerIntent");
+        intentField.setAccessible(true);
+        recognizerIntent = (Intent) intentField.get(manager);
+
+        // 4) Hook to recognition listener
+        recognitionListener = manager.getRecognitionListenerForTesting();
+        assertNotNull("Listener must not be null", recognitionListener);
     }
 
     @Test
-    public void testStartListening() {
+    public void startListening_callsStartListeningWithCorrectIntent() {
         manager.startListening();
-        verify(mockSpeechRecognizer).startListening(any(Intent.class));
+        verify(mockRecognizer).startListening(recognizerIntent);
     }
 
     @Test
-    public void testStopListening() {
+    public void stopListening_callsStopListening() {
         manager.stopListening();
-        verify(mockSpeechRecognizer).stopListening();
+        verify(mockRecognizer).stopListening();
     }
 
     @Test
-    public void testDestroy() {
+    public void destroy_callsDestroy() {
         manager.destroy();
-        verify(mockSpeechRecognizer).destroy();
+        verify(mockRecognizer).destroy();
     }
 
     @Test
-    public void testRecognizerIntentSetup() {
-        manager.startListening();
-        verify(mockSpeechRecognizer).startListening(intentCaptor.capture());
-
-        Intent capturedIntent = intentCaptor.getValue();
-        assertEquals(RecognizerIntent.ACTION_RECOGNIZE_SPEECH, capturedIntent.getAction());
-        assertEquals(RecognizerIntent.LANGUAGE_MODEL_FREE_FORM,
-                capturedIntent.getStringExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL));
-        assertEquals(Locale.getDefault().toString(),
-                capturedIntent.getStringExtra(RecognizerIntent.EXTRA_LANGUAGE));
-        assertEquals(1,
-                capturedIntent.getIntExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 0));
-    }
-
-    @Test
-    public void testOnResultsCallback() {
-        RecognitionListener listener = listenerCaptor.getValue();
+    public void recognitionListener_onResults_forwardsResult() {
         Bundle results = new Bundle();
         ArrayList<String> matches = new ArrayList<>();
-        matches.add("test speech");
+        matches.add("test result"); // ✅ Make sure it's NOT EMPTY
         results.putStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION, matches);
 
-        listener.onResults(results);
-        verify(mockListener).onSpeechResult("test speech");
+        recognitionListener.onResults(results);
+
+        verify(mockListener).onSpeechResult("test result"); // ✅ Correct verify
     }
 
     @Test
-    public void testErrorCallback() {
-        RecognitionListener listener = listenerCaptor.getValue();
-        listener.onError(SpeechRecognizer.ERROR_AUDIO);
+    public void recognitionListener_onError_forwardsError() {
+        recognitionListener.onError(SpeechRecognizer.ERROR_AUDIO);
         verify(mockListener).onSpeechError(contains("Speech recognition error"));
+    }
+
+    @Test
+    public void intent_isConfiguredCorrectly() {
+        assertEquals(RecognizerIntent.ACTION_RECOGNIZE_SPEECH,
+                recognizerIntent.getAction());
+
+        assertEquals(RecognizerIntent.LANGUAGE_MODEL_FREE_FORM,
+                recognizerIntent.getStringExtra(
+                        RecognizerIntent.EXTRA_LANGUAGE_MODEL));
+
+        Object langExtra = recognizerIntent.getSerializableExtra(
+                RecognizerIntent.EXTRA_LANGUAGE);
+        assertTrue("Expected a Locale", langExtra instanceof Locale);
+        assertEquals(Locale.getDefault(), langExtra);
+
+        assertEquals(1,
+                recognizerIntent.getIntExtra(
+                        RecognizerIntent.EXTRA_MAX_RESULTS, -1));
     }
 }

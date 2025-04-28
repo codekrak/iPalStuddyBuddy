@@ -6,80 +6,78 @@ import android.widget.Button;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-import android.view.View;  // Add this import
+import org.robolectric.Robolectric;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.Shadows;
+import org.robolectric.annotation.Config;
 
+import static org.junit.Assert.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(RobolectricTestRunner.class)
+@Config(sdk = 25)
 public class SubjectSelectionActivityTest {
-
-    @Mock private Button mockMathButton;
-    @Mock private Button mockReadingButton;
-    @Mock private Button mockScienceButton;
-    @Mock private Button mockGovernmentButton;
-    @Captor private ArgumentCaptor<View.OnClickListener> clickCaptor;
-    @Captor private ArgumentCaptor<Intent> intentCaptor;
 
     private SubjectSelectionActivity activity;
 
     @Before
     public void setUp() {
-        activity = new SubjectSelectionActivity() {
-            @Override
-            public Button findViewById(int id) {
-                if (id == R.id.mathButton) return mockMathButton;
-                if (id == R.id.readingButton) return mockReadingButton;
-                if (id == R.id.scienceButton) return mockScienceButton;
-                if (id == R.id.governmentButton) return mockGovernmentButton;
-                return null;
-            }
-        };
-        activity.onCreate(null);
+        activity = Robolectric.buildActivity(SubjectSelectionActivity.class)
+                .create()
+                .start()
+                .resume()
+                .visible()
+                .get();
     }
 
     @Test
     public void mathButton_startsQuizWithMathSubject() {
-        verify(mockMathButton).setOnClickListener(clickCaptor.capture());
-        clickCaptor.getValue().onClick(null);
+        Button mathButton = (Button) activity.findViewById(R.id.mathButton);
+        assertNotNull("mathButton should exist", mathButton);
 
-        verify(activity).startActivity(intentCaptor.capture());
-        Intent intent = intentCaptor.getValue();
+        mathButton.performClick();
+
+        Intent intent = Shadows.shadowOf(activity).getNextStartedActivity();
+        assertNotNull("Intent should be fired", intent);
         assertEquals("math", intent.getStringExtra("subject"));
-        assertEquals(QuizActivity.class.getName(),
-                intent.getComponent().getClassName());
+        assertEquals(QuizActivity.class.getName(), intent.getComponent().getClassName());
     }
 
     @Test
     public void readingButton_startsQuizWithReadingSubject() {
-        verify(mockReadingButton).setOnClickListener(clickCaptor.capture());
-        clickCaptor.getValue().onClick(null);
+        Button readingButton = (Button) activity.findViewById(R.id.readingButton);
+        assertNotNull("readingButton should exist", readingButton);
 
-        verify(activity).startActivity(intentCaptor.capture());
-        assertEquals("reading", intentCaptor.getValue().getStringExtra("subject"));
+        readingButton.performClick();
+
+        Intent intent = Shadows.shadowOf(activity).getNextStartedActivity();
+        assertNotNull("Intent should be fired", intent);
+        assertEquals("reading", intent.getStringExtra("subject"));
+        assertEquals(QuizActivity.class.getName(), intent.getComponent().getClassName());
     }
 
     @Test
     public void scienceButton_startsQuizWithScienceSubject() {
-        verify(mockScienceButton).setOnClickListener(clickCaptor.capture());
-        clickCaptor.getValue().onClick(null);
+        Button scienceButton = (Button) activity.findViewById(R.id.scienceButton);
+        assertNotNull("scienceButton should exist", scienceButton);
 
-        verify(activity).startActivity(intentCaptor.capture());
-        assertEquals("science", intentCaptor.getValue().getStringExtra("subject"));
+        scienceButton.performClick();
+
+        Intent intent = Shadows.shadowOf(activity).getNextStartedActivity();
+        assertNotNull("Intent should be fired", intent);
+        assertEquals("science", intent.getStringExtra("subject"));
+        assertEquals(QuizActivity.class.getName(), intent.getComponent().getClassName());
     }
 
     @Test
     public void governmentButton_startsQuizWithGovernmentSubject() {
-        verify(mockGovernmentButton).setOnClickListener(clickCaptor.capture());
-        clickCaptor.getValue().onClick(null);
+        Button governmentButton = (Button) activity.findViewById(R.id.governmentButton);
+        assertNotNull("governmentButton should exist", governmentButton);
 
-        verify(activity).startActivity(intentCaptor.capture());
-        assertEquals("government", intentCaptor.getValue().getStringExtra("subject"));
+        governmentButton.performClick();
+
+        Intent intent = Shadows.shadowOf(activity).getNextStartedActivity();
+        assertNotNull("Intent should be fired", intent);
+        assertEquals("government", intent.getStringExtra("subject"));
+        assertEquals(QuizActivity.class.getName(), intent.getComponent().getClassName());
     }
 }

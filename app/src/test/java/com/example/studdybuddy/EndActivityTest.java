@@ -1,13 +1,6 @@
 package com.example.studdybuddy;
 
 import android.content.Intent;
-import android.content.res.Resources;
-import android.content.res.Resources.Theme;
-import android.content.res.TypedArray;
-import android.os.Bundle;
-import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -15,123 +8,111 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
+import org.mockito.MockitoAnnotations;
+import org.robolectric.Robolectric;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.android.controller.ActivityController;
+import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowApplication;
+import org.robolectric.util.ReflectionHelpers;
 
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import com.example.studdybuddy.BuildConfig;
+import com.example.studdybuddy.R;
+import android.robot.motion.RobotMotion;
+import android.robot.speech.SpeechManager;
+import android.robot.speech.SpeechService;
 
-@RunWith(MockitoJUnitRunner.class)
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+//@Config(constants = BuildConfig.class, sdk = 25)
+@RunWith(RobolectricTestRunner.class)
 public class EndActivityTest {
 
-    @Mock private Bundle mockBundle;
-    @Mock private Intent mockIntent;
-    @Mock private TextView mockScoreTextView;
-    @Mock private TextView mockFeedbackTextView;
-    @Mock private Button mockRestartButton;
-    @Mock private Button mockExitButton;
-    @Mock private Window mockWindow;
-    @Mock private Window.Callback mockWindowCallback;
-    @Mock private WindowManager mockWindowManager;
-    @Mock private Resources mockResources;
-    @Mock private Theme mockTheme;
-    @Mock private TypedArray mockTypedArray;
+    @Mock
+    private SpeechManager mockSpeechManager;
 
-    private EndActivity endActivity;
+    @Captor
+    private ArgumentCaptor<SpeechManager.TtsListener> ttsListenerCaptor;
+
+    private ActivityController<EndActivity> controller;
+    private EndActivity activity;
 
     @Before
     public void setUp() {
-        endActivity = spy(new EndActivity());
+        MockitoAnnotations.initMocks(this);
 
-        // Mock all Context/Activity framework methods
-        doReturn(mockIntent).when(endActivity).getIntent();
-        doReturn(mockWindow).when(endActivity).getWindow();
-        doReturn(mockResources).when(endActivity).getResources();
-        doReturn(mockTheme).when(endActivity).getTheme();
+        // Register mocked SpeechManager in the system services
+        ShadowApplication.getInstance().setSystemService(
+                SpeechService.SERVICE_NAME,
+                mockSpeechManager
+        );
 
-        // Setup Window mock hierarchy
-        when(mockWindow.getCallback()).thenReturn(mockWindowCallback);
-        when(mockWindow.getWindowManager()).thenReturn(mockWindowManager);
+        // Prepare intent with extras
+        Intent intent = new Intent();
+        intent.putExtra("SCORE_TEXT", "85");
+        intent.putExtra("FEEDBACK", "Excellent performance");
 
-        // Mock theme and styled attributes
-        when(mockTheme.obtainStyledAttributes(any(int[].class))).thenReturn(mockTypedArray);
-        when(mockTypedArray.getResourceId(anyInt(), anyInt())).thenReturn(0);
+        // Build the ActivityController and set AppCompat theme
+        controller = Robolectric.buildActivity(EndActivity.class, intent);
+        activity = controller.get();
+        activity.setTheme(R.style.AppTheme);
 
-        // Mock findViewById()
-        when(endActivity.findViewById(anyInt())).thenAnswer(new Answer<View>() {
-            @Override
-            public View answer(InvocationOnMock invocation) throws Throwable {
-                int id = (Integer) invocation.getArguments()[0];
-                if (id == R.id.scoreTextView) return mockScoreTextView;
-                if (id == R.id.feedbackTextView) return mockFeedbackTextView;
-                if (id == R.id.restartButton) return mockRestartButton;
-                if (id == R.id.exitButtonEnd) return mockExitButton;
-                return null;
-            }
-        });
-
-        // Mock restart button click
-        doAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(InvocationOnMock invocation) throws Throwable {
-                Intent intent = new Intent(endActivity, MainActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                endActivity.startActivity(intent);
-                return null;
-            }
-        }).when(mockRestartButton).performClick();
-
-        // Mock exit button click
-        doAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(InvocationOnMock invocation) throws Throwable {
-                endActivity.finish();
-                return null;
-            }
-        }).when(mockExitButton).performClick();
+        // Create and start the activity
+        controller.create().start().resume();
+        activity = controller.get();
     }
 
     @Test
-    public void onCreate_setsUpViewsCorrectly() {
-        when(mockIntent.getStringExtra("SCORE_TEXT")).thenReturn("5/10");
-        when(mockIntent.getStringExtra("FEEDBACK")).thenReturn("Good effort!");
+    public void onCreate_shouldInitializeUiAndStartSpeaking() {
+        // Verify that TextViews are updated
+        TextView scoreView = (TextView) activity.findViewById(R.id.scoreTextView);
+        TextView feedbackView = (TextView) activity.findViewById(R.id.feedbackTextView);
+        assertEquals("85", scoreView.getText().toString());
+        assertEquals("Excellent performance", feedbackView.getText().toString());
 
-        endActivity.onCreate(mockBundle);
+        // Verify TtsListener was set on SpeechManager
+        verify(mockSpeechManager).setTtsListener(ttsListenerCaptor.capture());
 
-        verify(mockScoreTextView).setText("5/10");
-        verify(mockFeedbackTextView).setText("Good effort!");
+        // Verify startSpeaking was called with full message
+        String expectedMessage = "Your final score is 85. Excellent performance";
+        verify(mockSpeechManager).startSpeaking(expectedMessage);
     }
 
     @Test
-    public void restartButton_launchesMainActivity() {
-        when(mockIntent.getStringExtra("SCORE_TEXT")).thenReturn("5/10");
-        when(mockIntent.getStringExtra("FEEDBACK")).thenReturn("Feedback");
-        endActivity.onCreate(mockBundle);
+    public void restartButton_shouldLaunchMainActivityWithFlags() {
+        // (1) Cast the View to Button
+        Button restart = (Button) activity.findViewById(R.id.restartButton);
+        assertNotNull(restart);
 
-        mockRestartButton.performClick();
+        // (2) Perform the click
+        restart.performClick();
 
-        ArgumentCaptor<Intent> intentCaptor = ArgumentCaptor.forClass(Intent.class);
-        verify(endActivity).startActivity(intentCaptor.capture());
-        assertTrue((intentCaptor.getValue().getFlags() & Intent.FLAG_ACTIVITY_CLEAR_TOP) != 0);
+        // (3) Verify the next intent
+        Intent next = ShadowApplication.getInstance().getNextStartedActivity();
+        assertNotNull("Intent should not be null", next);
+        assertEquals(MainActivity.class.getName(), next.getComponent().getClassName());
+        int flags = next.getFlags();
+        assertTrue((flags & Intent.FLAG_ACTIVITY_CLEAR_TOP) != 0);
+        assertTrue((flags & Intent.FLAG_ACTIVITY_NEW_TASK) != 0);
     }
 
     @Test
-    public void exitButton_finishesActivity() {
-        when(mockIntent.getStringExtra("SCORE_TEXT")).thenReturn("5/10");
-        when(mockIntent.getStringExtra("FEEDBACK")).thenReturn("Feedback");
-        endActivity.onCreate(mockBundle);
+    public void ttsListener_onEnd_shouldTriggerRobotMotionAction() {
+        // Capture the listener set on SpeechManager
+        verify(mockSpeechManager).setTtsListener(ttsListenerCaptor.capture());
+        SpeechManager.TtsListener listener = ttsListenerCaptor.getValue();
 
-        mockExitButton.performClick();
+        // Use a mock for RobotMotion so doAction() doesn't call real code
+        RobotMotion mockMotion = mock(RobotMotion.class);
+        ReflectionHelpers.setField(activity, "mRobotMotion", mockMotion);
 
-        verify(endActivity).finish();
+        // Simulate speech finished
+        listener.onEnd(42);
+
+        // Since feedback contains "Excellent", expect CHEER action
+        verify(mockMotion).doAction(RobotMotion.Action.CHEER);
     }
 }
